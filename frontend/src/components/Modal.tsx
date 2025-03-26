@@ -2,10 +2,9 @@ import React from "react";
 import { motion } from "framer-motion";
 interface ModalProps {
     isOpen: boolean;
-    onClose: () => void;
     children: React.ReactNode;
 }
-export default function Modal({ isOpen, onClose, children }: ModalProps) {
+export default function Modal({ isOpen, children }: ModalProps) {
     if (!isOpen) return null;
     return (
         <>
