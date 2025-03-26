@@ -380,7 +380,7 @@ export default function MinesPage() {
                                 id="mines-grid"
                                 className="grid grid-cols-5 gap-3"
                             >
-                                {array.map((v, i) => (
+                                {array.map((_, i) => (
                                     <motion.div
                                         key={i}
                                         onClick={() => handleTileClick(i)}

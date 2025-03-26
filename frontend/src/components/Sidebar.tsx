@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 export default function SideBar() {
     // const array = Array.from({ length: 10 }, (_, index) => index);
     const sidebar_texts = [
