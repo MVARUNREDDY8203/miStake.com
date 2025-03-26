@@ -2,10 +2,12 @@ import React from "react";
 import { motion } from "framer-motion";
 interface ModalProps {
     isOpen: boolean;
+    onClose: () => void;
     children: React.ReactNode;
 }
-export default function Modal({ isOpen, children }: ModalProps) {
+export default function Modal({ isOpen, onClose, children }: ModalProps) {
     if (!isOpen) return null;
+    () => onClose();
     return (
         <>
             <div className="flex items-center justify-center bg-black/50 absolute inset-0 z-50">
