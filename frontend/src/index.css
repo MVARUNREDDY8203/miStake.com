@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+body {
+    margin: 0;
+    background-color: #1a2c38;
+}
+/* For WebKit browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+    width: 4px; /* Thinner scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* Transparent track */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2f4553; /* Semi-transparent thumb */
+    border-radius: 4px;
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin; /* Makes the scrollbar thinner */
+    scrollbar-color: #2f4553 transparent; /* thumb color, track color */
+}

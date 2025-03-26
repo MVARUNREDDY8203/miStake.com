@@ -1,1 +1,13 @@
 @import "tailwindcss";
+@theme {
+    --color-stake-100: #557086;
+    --color-stake-200: #2f4553;
+    --color-stake-300: #213743;
+    --color-stake-500: #1a2c38;
+    --color-stake-700: #0f212e;
+    --color-stake-800: #071824;
+    --color-stake-blue-500: #1475e1;
+    --color-stake-gray-300: #acbad1;
+    --color-stakegreen-500: #01e802;
+    --color-stakegreen-450: #1fff20;
+}
