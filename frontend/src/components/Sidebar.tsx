@@ -8,7 +8,6 @@ export default function SideBar() {
         { name: "Dice", src: "./dice_smol.svg" },
         { name: "Pump", src: "./balloon_smol.svg" },
     ];
-    const [isOpen, setIsOpen] = useState<boolean>(true);
     return (
         <>
             <div className={`flex w-64 h-screen text-white `}>
@@ -18,9 +17,6 @@ export default function SideBar() {
                         id="sidebar-header-section"
                         className="flex w-2xs h-16 shadow-[0_4px_6px_-1px_#0003,0_2px_4px_-1px_#0000001f]"
                     >
-                        <button onClick={() => setIsOpen((prev) => !prev)}>
-                            3 dots
-                        </button>
                         casino sports
                     </div>
                     {/* scrollable sections */}
