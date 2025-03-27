@@ -260,6 +260,7 @@ export default function MinesPage() {
                                 className={`hover:bg-stake-200 p-2 bg-stake-300 rounded-2xl cursor-pointer`}
                                 onClick={() => {
                                     toggleInResetProcess();
+                                    setResetInput("");
                                 }}
                             >
                                 Close
