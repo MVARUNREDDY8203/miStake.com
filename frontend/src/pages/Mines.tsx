@@ -210,6 +210,7 @@ export default function MinesPage() {
                 id="mines-page"
                 className="flex flex-1 flex-col items-center w-xs aftermobile:w-md aftertablet:w-3xl afterlargelaptop:w-6xl overflow-y-scroll py-10 bg-stake-500 "
             >
+                {/* reset balance modal */}
                 <Modal
                     isOpen={inResetProcess}
                     onClose={() => {
@@ -303,7 +304,7 @@ export default function MinesPage() {
                         {/* settings and bet buttons */}
                         <div
                             id="bet-setting"
-                            className="flex flex-col items-center py-3 w-xs rounded-l-2xl gap-2 aftermobile:w-md aftertablet:w-2xs"
+                            className="flex flex-col-reverse aftertablet:flex-col items-center py-3 w-xs rounded-l-2xl gap-2 aftermobile:w-md aftertablet:w-2xs"
                         >
                             {/* manual or auto */}
                             <div
