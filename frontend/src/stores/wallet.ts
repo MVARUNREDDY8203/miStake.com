@@ -4,6 +4,8 @@ interface WalletState {
     placeBet: (amt: number) => void;
     addWinnings: (amt: number) => void;
     resetBalance: () => void;
+    inResetProcess: boolean;
+    toggleInResetProcess: () => void;
 }
 const DEFAULT_BALANCE = 10000;
 const getInitialBalance = () => {
@@ -12,6 +14,7 @@ const getInitialBalance = () => {
 };
 export const useWalletStore = create<WalletState>((set) => ({
     balance: getInitialBalance(),
+    inResetProcess: false,
     placeBet: (amt) => {
         set((state) => {
             if (amt > state.balance) return state;
@@ -32,6 +35,12 @@ export const useWalletStore = create<WalletState>((set) => ({
         set(() => {
             localStorage.setItem("balance", DEFAULT_BALANCE.toString());
             return { balance: DEFAULT_BALANCE };
+        });
+    },
+    toggleInResetProcess: () => {
+        set((state) => {
+            const newState = !state.inResetProcess;
+            return { inResetProcess: newState };
         });
     },
 }));

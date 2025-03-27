@@ -1,7 +1,7 @@
 import { useWalletStore } from "../stores/wallet";
 
 export default function Header() {
-    const { balance, resetBalance } = useWalletStore();
+    const { balance, toggleInResetProcess } = useWalletStore();
     return (
         <div
             id="header"
@@ -10,7 +10,7 @@ export default function Header() {
             {/* w-6xl header child */}
             <div
                 id="header-child"
-                className="flex w-6xl  items-center justify-between h-16 bg-[#1a2c38] text-white "
+                className="flex w-xs aftermobile:w-md aftertablet:w-3xl afterlargelaptop:w-6xl items-center justify-between h-16 bg-[#1a2c38] text-white "
             >
                 <img className="" src="./stake-logo-white.svg"></img>
                 <div className="flex font-semibold text-sm" id="wallet-div">
@@ -18,7 +18,7 @@ export default function Header() {
                         {"$" + balance.toFixed(2)}
                     </div>
                     <div
-                        onClick={() => resetBalance()}
+                        onClick={() => toggleInResetProcess()}
                         className="bg-stake-blue-500 p-3 rounded-r-sm"
                     >
                         Wallet

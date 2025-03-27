@@ -9,5 +9,13 @@
     --color-stake-blue-500: #1475e1;
     --color-stake-gray-300: #acbad1;
     --color-stakegreen-500: #01e802;
+    --color-stakegreen_loading: #108f22;
     --color-stakegreen-450: #1fff20;
+    --breakpoint-aftermobile: 448px;
+    --breakpoint-aftertablet: 768px;
+    --breakpoint-afterlaptop: 1024px;
+    --breakpoint-afterlargelaptop: 1440px;
+}
+* {
+    user-select: none;
 }

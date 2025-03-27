@@ -5,12 +5,14 @@ interface ModalProps {
     onClose: () => void;
     children: React.ReactNode;
 }
+
+// NOTE: add relative to the parent
 export default function Modal({ isOpen, onClose, children }: ModalProps) {
     if (!isOpen) return null;
     () => onClose();
     return (
         <>
-            <div className="flex items-center justify-center bg-black/50 absolute inset-0 z-50">
+            <div className="flex items-center justify-center bg-black/50 absolute inset-0 z-50 rounded-t-lg">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}

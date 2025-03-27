@@ -26,11 +26,32 @@ export default function MinesPage() {
     const [winningMultiplier, setWinningMultipler] = useState<number>(0);
     const [bettingAmt, setBettingAmt] = useState<number>(0);
     const [finalWinnings, setFinalWinnings] = useState<number>(0);
-    const { balance, addWinnings, placeBet } = useWalletStore();
+    const [resetInput, setResetInput] = useState<string>("");
+    const {
+        balance,
+        addWinnings,
+        placeBet,
+        inResetProcess,
+        toggleInResetProcess,
+        resetBalance,
+    } = useWalletStore();
+    const [isFairnessModalOpen, setIsFairnessModalOpen] =
+        useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+    const betSound = new Audio("./bet.mp3");
+    const winSound = new Audio("./win.mp3");
+    const gemSound = new Audio("./gemclink.mp3");
+    const mineSound = new Audio("./mineblast.mp3");
     useEffect(() => {
         if (revealedState.includes(2)) return; // if state is loading wait till all the updation has happened
         calculateMultiplier();
+        checkIfWon();
     }, [revealedState]);
+    function handleResetInput(e: React.ChangeEvent<HTMLInputElement>): void {
+        e.preventDefault();
+
+        setResetInput(() => e.target.value);
+    }
     function handleBettingAmt(e: React.ChangeEvent<HTMLInputElement>): void {
         e.preventDefault();
         let value: number = Number(e.target.value);
@@ -61,6 +82,14 @@ export default function MinesPage() {
         // inverse probability of success * house edge
 
         setMultiplier(() => curr_multiplier);
+        setWinningMultipler(() => curr_multiplier);
+    }
+    function setRevealedStateTo(clickedIndex: number, state: number): void {
+        setRevealedState((prev) => {
+            let newRevealedState = [...prev];
+            newRevealedState[clickedIndex] = state;
+            return newRevealedState;
+        });
     }
     function setMines(): void {
         let newMinesArray: number[] = new Array(25).fill(0);
@@ -72,13 +101,6 @@ export default function MinesPage() {
 
         indicesOfMines.forEach((idx) => (newMinesArray[idx] = 1));
         setMinesState(newMinesArray);
-    }
-    function setRevealedStateTo(clickedIndex: number, state: number): void {
-        setRevealedState((prev) => {
-            let newRevealedState = [...prev];
-            newRevealedState[clickedIndex] = state;
-            return newRevealedState;
-        });
     }
     function handleBet(): void {
         setRevealedState(() => init_tile_array);
@@ -92,12 +114,12 @@ export default function MinesPage() {
         // deduct from balance
         placeBet(bettingAmt);
 
-        new Audio("./bet.mp3").play();
+        betSound.play();
     }
     function handleTileClick(clickedIndex: number): void {
         if (!gameOn) return;
         if (revealedState[clickedIndex] != TileState.UNREVEALED) return;
-
+        // alert(minesState);
         setRevealedStateTo(clickedIndex, TileState.LOADING);
 
         if (minesState[clickedIndex] == 1) {
@@ -113,45 +135,20 @@ export default function MinesPage() {
                     });
                     return newRevealedState;
                 });
-                new Audio("./mineblast.mp3").play();
+                mineSound.play();
+                // loseSound.play();
+
                 setMultiplier(1);
             }, 500);
         } else {
             setTimeout(() => {
                 setRevealedStateTo(clickedIndex, TileState.REVEALED);
-                new Audio("./gemclink.mp3").play();
+                gemSound.play();
             }, 500);
         }
     }
-    function handleCashOut() {
-        // checking if atleast one tile has been clicked
-        let flag: boolean = false;
-        for (let i = 0; i < 25; i++)
-            if (revealedState[i] == TileState.REVEALED) {
-                flag = true;
-                break;
-            }
-        if (!flag) {
-            alert("select alteast one tile");
-            return;
-        }
-        const winnings = multiplier * bettingAmt;
-        setWinningMultipler(() => multiplier);
-        // revealing all the untouched tiles
-        setFinalWinnings(winnings);
-        addWinnings(winnings);
-        setRevealedState((prev) => {
-            let newRevealedState = [...prev];
-            newRevealedState.forEach((v, i) => {
-                if (v == 0) newRevealedState[i] = TileState.CASHEDOUT;
-            });
-            return newRevealedState;
-        });
-        new Audio("./win.mp3").play();
-        setIsModalOpen(true);
-        setGameOn(false);
-    }
     function handleRandomTilePick() {
+        setLoading(true);
         let clickable_subset_of_tiles: number[] = [];
         revealedState.forEach((v, i) => {
             if (v == TileState.UNREVEALED) {
@@ -161,23 +158,158 @@ export default function MinesPage() {
         let idx = Math.floor(Math.random() * clickable_subset_of_tiles.length);
         let idx_to_be_clicked = clickable_subset_of_tiles[idx];
         handleTileClick(idx_to_be_clicked);
+        setTimeout(() => {
+            setLoading(false);
+        }, 1000);
+    }
+    function checkIfWon(): void {
+        let flag: boolean = false;
+        for (let i = 0; i < N_TILES; i++) {
+            if (
+                minesState[i] == 0 &&
+                revealedState[i] == TileState.UNREVEALED
+            ) {
+                // if it is a gem and not been revealed
+                flag = true;
+                break;
+            }
+        }
+        if (flag) return; // if it is a gem and not been revealed
+        handleCashOut();
+    }
+    function handleCashOut() {
+        if (!gameOn) return;
+        // checking if atleast one tile has been clicked
+        // let flag: boolean = false;
+        // for (let i = 0; i < 25; i++)
+        //     if (revealedState[i] == TileState.REVEALED) {
+        //         flag = true;
+        //         break;
+        //     }
+        if (!revealedState.some((v, _) => v == TileState.REVEALED)) {
+            alert("select alteast one tile");
+            return;
+        }
+        setLoading(true);
+
+        setWinningMultipler((prev) => multiplier);
+        // revealing all the untouched tiles
+        setFinalWinnings((prev) => multiplier * bettingAmt);
+        // const winnings = multiplier * bettingAmt
+        setTimeout(() => {
+            addWinnings(multiplier * bettingAmt);
+            setRevealedState((prev) => {
+                let newRevealedState = [...prev];
+                newRevealedState.forEach((v, i) => {
+                    if (v == 0) newRevealedState[i] = TileState.CASHEDOUT;
+                });
+                return newRevealedState;
+            });
+            winSound.play();
+            setIsModalOpen(true);
+            setGameOn(false);
+            setLoading(false);
+        }, 1000);
     }
     return (
         <>
             <div
                 id="mines-page"
-                className="flex flex-1 flex-col items-center w-6xl overflow-y-scroll py-10 bg-stake-500 "
+                className="flex flex-1 flex-col items-center w-xs aftermobile:w-md aftertablet:w-3xl afterlargelaptop:w-6xl overflow-y-scroll py-10 bg-stake-500 "
             >
+                <Modal
+                    isOpen={inResetProcess}
+                    onClose={() => {
+                        toggleInResetProcess();
+                    }}
+                >
+                    <div className="bg-stake-800 text-justify w-60 h-120 aftermobile:w-100 aftermobile:h-80 flex flex-col justify-center items-center rounded-2xl px-10 font-semibold text-stake-gray-300">
+                        <div className="w-full text-center text-3xl">
+                            🤣🤣🫵🫵<br></br>
+                        </div>
+
+                        <span className="text-red-400 font-bold py-5 text-center">
+                            If this were real you would have <br></br>lost REAL
+                            MONEY!!
+                        </span>
+                        <div className="w-full">
+                            Type: "reset-balance" to reset the balance
+                        </div>
+                        <br></br>
+                        <input
+                            id="resetbalancetask"
+                            placeholder="hahahahaha"
+                            value={resetInput}
+                            className="bg-stake-700 border-2 border-stake-gray-300"
+                            onChange={(e) => handleResetInput(e)}
+                        ></input>
+                        <br></br>
+                        <div className="flex gap-2">
+                            <button
+                                disabled={resetInput !== "reset-balance"}
+                                className={`hover:bg-stake-200 p-2 bg-stake-300 rounded-2xl ${
+                                    resetInput === "reset-balance"
+                                        ? "cursor-pointer"
+                                        : "cursor-not-allowed"
+                                }`}
+                                onClick={() => {
+                                    toggleInResetProcess();
+                                    setResetInput("");
+                                    resetBalance();
+                                }}
+                            >
+                                {resetInput === "reset-balance" &&
+                                    "RESET and Close"}
+                                {resetInput !== "reset-balance" &&
+                                    "Type in the input if you want to reset!!"}
+                            </button>
+                            <button
+                                className={`hover:bg-stake-200 p-2 bg-stake-300 rounded-2xl cursor-pointer`}
+                                onClick={() => {
+                                    toggleInResetProcess();
+                                }}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
                 {/* game div */}
                 <div id="gamediv" className="flex-1 bg-stake-500 rounded-lg">
                     <div
                         id="setting+game"
-                        className="flex w-6xl bg-stake-300 rounded-lg"
+                        className="flex flex-col-reverse w-xs aftermobile:w-md aftertablet:w-3xl aftertablet:flex-row afterlargelaptop:w-6xl afterlargelaptop:flex-row bg-stake-300 rounded-lg relative"
                     >
+                        {/* fairness modal */}
+                        <Modal
+                            isOpen={isFairnessModalOpen}
+                            onClose={() => setIsFairnessModalOpen(false)}
+                        >
+                            <div className="bg-stake-800 text-justify w-60 h-100 aftermobile:w-100 aftermobile:h-80 flex flex-col justify-center items-center rounded-2xl px-10 font-semibold text-stake-gray-300">
+                                <div className="w-full">
+                                    Betting apps don't need to be rigged and
+                                    most of them are not rigged at all. Thats
+                                    the way it works. They'll make money
+                                    mathematically, and
+                                </div>
+
+                                <span className="text-red-400 font-bold py-5">
+                                    YOU WILL LOSE MONEY EVENTUALLY!
+                                </span>
+                                <button
+                                    className="hover:bg-stake-200 p-2 bg-stake-300 rounded-2xl"
+                                    onClick={() =>
+                                        setIsFairnessModalOpen(false)
+                                    }
+                                >
+                                    close
+                                </button>
+                            </div>
+                        </Modal>
                         {/* settings and bet buttons */}
                         <div
                             id="bet-setting"
-                            className="flex flex-col items-center py-3 w-2xs rounded-l-2xl gap-2"
+                            className="flex flex-col items-center py-3 w-xs rounded-l-2xl gap-2 aftermobile:w-md aftertablet:w-2xs"
                         >
                             {/* manual or auto */}
                             <div
@@ -215,7 +347,9 @@ export default function MinesPage() {
                                     }`}
                                 >
                                     <input
-                                        className={`bg-stake-500 h-full w-full p-1 px-2 selection:bg-stake-100 font-semibold focus:ring-0 outiline-none focus:outline-none `}
+                                        className={`bg-stake-500 h-full w-full p-1 px-2 selection:bg-stake-100 font-semibold focus:ring-0 outiline-none focus:outline-none ${
+                                            bettingAmt > balance ? "" : ""
+                                        }`}
                                         placeholder="$0.00"
                                         type="number"
                                         min={0}
@@ -278,7 +412,7 @@ export default function MinesPage() {
                                             )
                                         }
                                         value={numberOfMines}
-                                        className="border p-2 rounded-md focus:ring-0 outiline-none focus:outline-none bg-stake-500 text-white w-[100%]"
+                                        className="border border-stake-gray-300 p-2 rounded-md focus:ring-0 outiline-none focus:outline-none bg-stake-500 text-white w-[100%]"
                                     >
                                         {Array.from({ length: 24 }, (_, i) => (
                                             <option
@@ -338,7 +472,10 @@ export default function MinesPage() {
                                     onClick={() => {
                                         handleRandomTilePick();
                                     }}
-                                    className="w-[90%] h-15 flex items-center justify-center bg-stake-200 hover:bg-stake-100 rounded-md text-white font-bold cursor-pointer"
+                                    className={`w-[90%] h-15 flex items-center justify-center bg-stake-200 hover:bg-stake-100 rounded-md text-white font-bold cursor-pointer ${
+                                        loading &&
+                                        "opacity-70 pointer-events-none"
+                                    }`}
                                 >
                                     Pick Random Tile
                                 </div>
@@ -348,10 +485,15 @@ export default function MinesPage() {
                                     if (!gameOn) handleBet();
                                     else handleCashOut();
                                 }}
-                                className="w-[90%] h-15 flex items-center justify-center bg-stakegreen-500 hover:bg-stakegreen-450 rounded-md text-stake-500 font-bold cursor-pointer"
+                                className={`w-[90%] h-15 flex items-center justify-center bg-stakegreen-500 hover:bg-stakegreen-450 rounded-md text-stake-500 font-bold cursor-pointer transition-opacity ${
+                                    loading && "opacity-75 pointer-events-none"
+                                }`}
                             >
                                 {!gameOn && "Bet"}
-                                {gameOn && "CashOut"}
+                                {gameOn && !loading && "CashOut"}
+                                {gameOn && loading && (
+                                    <img className="w-5" src="./bomb.svg"></img>
+                                )}
                             </div>
                         </div>
                         {/* actual game area */}
@@ -365,7 +507,6 @@ export default function MinesPage() {
                                 onClose={() => setIsModalOpen(false)}
                             >
                                 <div className="border-6 border-stakegreen-450 rounded-xl flex flex-col items-center justify-center text-stakegreen-450 font-bold text-2xl h-30 w-35 bg-stake-500">
-                                    {" "}
                                     <div className="w-full h-full flex items-center justify-center">
                                         {winningMultiplier.toFixed(2)} {"x"}
                                     </div>
@@ -378,13 +519,13 @@ export default function MinesPage() {
                             {/* grid of tiles */}
                             <div
                                 id="mines-grid"
-                                className="grid grid-cols-5 gap-3"
+                                className="grid grid-cols-5 gap-1.5 aftermobile:gap-2 afterlaptop:gap-3"
                             >
                                 {array.map((_, i) => (
                                     <motion.div
                                         key={i}
                                         onClick={() => handleTileClick(i)}
-                                        className={`h-28 w-28 rounded-md flex items-center justify-center ${
+                                        className={`w-14 aspect-square aftermobile:w-19 aftertablet:w-20 afterlargelaptop:w-28  rounded-md flex items-center justify-center ${
                                             revealedState[i] ===
                                                 TileState.REVEALED ||
                                             revealedState[i] ==
@@ -396,7 +537,7 @@ export default function MinesPage() {
                                         revealedState[i] ==
                                             TileState.UNREVEALED ||
                                         revealedState[i] == TileState.LOADING
-                                            ? "bg-stake-200 hover:bg-stake-100 hover:-translate-y-1 active:translate-y-0 shadow-[inset_0px_-6px_0px_#1f3540] cursor-pointer"
+                                            ? "bg-stake-200 hover:bg-stake-100 hover:-translate-y-1 active:translate-y-0 shadow-[inset_0px_-3px_0px_#1f3540] aftermobile:shadow-[inset_0px_-4px_0px_#1f3540] afterlaptop:shadow-[inset_0px_-6px_0px_#1f3540] cursor-pointer"
                                             : ""
                                     }
 									`}
@@ -420,31 +561,19 @@ export default function MinesPage() {
                                         {revealedState[i] !=
                                             TileState.UNREVEALED &&
                                             revealedState[i] !=
-                                                TileState.LOADING &&
-                                            minesState[i] === 1 && (
+                                                TileState.LOADING && (
                                                 <img
-                                                    className={`${
+                                                    className={`aspect-square ${
                                                         revealedState[i] ==
                                                         TileState.CASHEDOUT
-                                                            ? "h-14 w-14 opacity-75"
-                                                            : "h-23 w-23"
+                                                            ? "w-7 aftermobile:w-10 aftertablet:w-11 afterlaptop:w-12 afterlargelaptop:w-14 opacity-75"
+                                                            : "w-12 aftermobile:w-16 aftertablet:w-17 afterlaptop:w-18 afterlargelaptop:w-23"
                                                     }`}
-                                                    src="./mine.svg"
-                                                ></img>
-                                            )}
-                                        {revealedState[i] !=
-                                            TileState.UNREVEALED &&
-                                            revealedState[i] !=
-                                                TileState.LOADING &&
-                                            minesState[i] === 0 && (
-                                                <img
-                                                    className={`${
-                                                        revealedState[i] ==
-                                                        TileState.CASHEDOUT
-                                                            ? "h-14 w-14 opacity-75"
-                                                            : "h-23 w-23"
+                                                    src={`${
+                                                        minesState[i] === 1
+                                                            ? "./mine.svg"
+                                                            : "./diamond.svg"
                                                     }`}
-                                                    src="./diamond.svg"
                                                 ></img>
                                             )}
                                     </motion.div>
@@ -452,10 +581,14 @@ export default function MinesPage() {
                             </div>
                         </div>
                     </div>
+                    {/* fairness */}
                     <div className="w-full bg-stake-700 border-t-3 border-stake-300 py-3 flex items-center justify-between rounded-b-lg">
                         <div></div>
                         <img src="./stake-logo-navy.svg"></img>
-                        <div className="px-3 text-stake-gray-300 font-semibold cursor-pointer">
+                        <div
+                            onClick={() => setIsFairnessModalOpen(true)}
+                            className="px-3 text-stake-gray-300 font-semibold cursor-pointer"
+                        >
                             Fairness
                         </div>
                     </div>
