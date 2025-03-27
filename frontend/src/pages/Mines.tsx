@@ -208,7 +208,7 @@ export default function MinesPage() {
         <>
             <div
                 id="mines-page"
-                className="flex flex-1 flex-col items-center w-xs aftermobile:w-md aftertablet:w-3xl afterlargelaptop:w-6xl overflow-y-scroll py-10 bg-stake-500 "
+                className="flex flex-1 flex-col items-center w-xs aftermobile:w-md aftertablet:w-3xl afterlargelaptop:w-6xl overflow-y-scroll p-4 aftermoble:py-10 bg-stake-500 "
             >
                 {/* reset balance modal */}
                 <Modal
