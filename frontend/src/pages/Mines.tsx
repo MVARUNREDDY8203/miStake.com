@@ -179,22 +179,15 @@ export default function MinesPage() {
     }
     function handleCashOut() {
         if (!gameOn) return;
-        // checking if atleast one tile has been clicked
-        // let flag: boolean = false;
-        // for (let i = 0; i < 25; i++)
-        //     if (revealedState[i] == TileState.REVEALED) {
-        //         flag = true;
-        //         break;
-        //     }
         if (!revealedState.some((v, _) => v == TileState.REVEALED)) {
             alert("select alteast one tile");
             return;
         }
         setLoading(true);
 
-        setWinningMultipler((prev) => multiplier);
+        setWinningMultipler(() => multiplier);
         // revealing all the untouched tiles
-        setFinalWinnings((prev) => multiplier * bettingAmt);
+        setFinalWinnings(() => multiplier * bettingAmt);
         // const winnings = multiplier * bettingAmt
         setTimeout(() => {
             addWinnings(multiplier * bettingAmt);
