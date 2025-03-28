@@ -12,7 +12,7 @@ export default function Header() {
                 id="header-child"
                 className="flex w-xs aftermobile:w-md aftertablet:w-3xl afterlargelaptop:w-6xl items-center justify-between h-16 bg-[#1a2c38] text-white "
             >
-                <img className="" src="./stake-logo-white.svg"></img>
+                <img className="w-25" src="./stake-logo-white.svg"></img>
                 <div className="flex font-semibold text-sm" id="wallet-div">
                     <div className=" bg-stake-700 p-3 px-5 rounded-l-sm">
                         {"$" + balance.toFixed(2)}

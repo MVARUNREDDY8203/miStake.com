@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 export default function SideBar() {
-    // const array = Array.from({ length: 10 }, (_, index) => index);
     const sidebar_texts = [
         { name: "Mines", src: "./diamond_smol.svg" },
         { name: "Plinko", src: "./plinko_smol.svg" },

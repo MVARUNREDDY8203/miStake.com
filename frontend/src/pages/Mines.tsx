@@ -270,10 +270,10 @@ export default function MinesPage() {
                     </div>
                 </Modal>
                 {/* game div */}
-                <div id="gamediv" className="flex-1 bg-stake-500 rounded-lg">
+                <div id="gamediv" className="flex-1 ">
                     <div
                         id="setting+game"
-                        className="flex flex-col-reverse w-xs aftermobile:w-md aftertablet:w-3xl aftertablet:flex-row afterlargelaptop:w-6xl afterlargelaptop:flex-row bg-stake-300 rounded-lg relative"
+                        className="flex flex-col-reverse w-xs aftermobile:w-md aftertablet:w-3xl aftertablet:flex-row afterlargelaptop:w-6xl afterlargelaptop:flex-row bg-stake-300 rounded-t-lg relative"
                     >
                         {/* fairness modal */}
                         <Modal
@@ -304,7 +304,7 @@ export default function MinesPage() {
                         {/* settings and bet buttons */}
                         <div
                             id="bet-setting"
-                            className="flex flex-col-reverse aftertablet:flex-col items-center py-3 w-xs rounded-l-2xl gap-2 aftermobile:w-md aftertablet:w-2xs"
+                            className="flex flex-col-reverse aftertablet:flex-col items-center py-3 w-xs gap-2 aftermobile:w-md aftertablet:w-2xs"
                         >
                             {/* manual or auto */}
                             <div
@@ -494,7 +494,7 @@ export default function MinesPage() {
                         {/* actual game area */}
                         <div
                             id="mines-game-area"
-                            className="relative flex flex-grow items-center py-3 justify-center bg-stake-700 rounded-tr-lg"
+                            className="relative flex flex-grow items-center py-2 aftermobile:py-3 justify-center bg-stake-700 rounded-t-lg aftertablet:rounded-tr-lg aftertablet:rounded-tl-none"
                         >
                             {/* win / loss modal */}
                             <Modal
