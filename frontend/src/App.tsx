@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import Layout from "./components/Layout";
 import MinesPage from "./pages/Mines";
+import GameLayout from "./components/GameLayout";
 
 function App() {
-    const [loadingScreen, setLoadingScreen] = useState<boolean>(true);
+    const [loadingScreen, setLoadingScreen] = useState<boolean>(false);
     useEffect(() => {
         const timer = setTimeout(() => setLoadingScreen(false), 3700);
         return () => clearTimeout(timer);
@@ -19,6 +20,7 @@ function App() {
             {!loadingScreen && (
                 <Layout>
                     <MinesPage></MinesPage>
+                    {/* <GameLayout></GameLayout> */}
                 </Layout>
             )}
         </>

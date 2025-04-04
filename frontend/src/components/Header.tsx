@@ -19,7 +19,7 @@ export default function Header() {
                     </div>
                     <div
                         onClick={() => toggleInResetProcess()}
-                        className="bg-stake-blue-500 p-3 rounded-r-sm"
+                        className="bg-stake-blue-500 p-3 rounded-r-sm cursor-pointer"
                     >
                         Wallet
                     </div>
