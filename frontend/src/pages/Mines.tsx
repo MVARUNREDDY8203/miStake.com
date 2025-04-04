@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Modal from "../components/Modal";
 import { useWalletStore } from "../stores/wallet";
+import { TransactionType } from "../types/types";
+import GameFooter from "../components/GameFooter";
 
 enum TileState {
     UNREVEALED = 0,
@@ -29,24 +31,41 @@ export default function MinesPage() {
     const [resetInput, setResetInput] = useState<string>("");
     const {
         balance,
-        addWinnings,
-        placeBet,
         inResetProcess,
         toggleInResetProcess,
+        placeBet,
+        addWinnings,
         resetBalance,
+        addTransaction,
+        resetTransactions,
     } = useWalletStore();
-    const [isFairnessModalOpen, setIsFairnessModalOpen] =
-        useState<boolean>(false);
+    // const [isFairnessModalOpen, setIsFairnessModalOpen] =
+    //     useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
+
     const betSound = new Audio("./bet.mp3");
     const winSound = new Audio("./win.mp3");
     const gemSound = new Audio("./gemclink.mp3");
     const mineSound = new Audio("./mineblast.mp3");
+
     useEffect(() => {
         if (revealedState.includes(2)) return; // if state is loading wait till all the updation has happened
         calculateMultiplier();
         checkIfWon();
     }, [revealedState]);
+    function createTransaction(
+        iv: number,
+        fv: number,
+        mul: number
+    ): TransactionType {
+        return {
+            init_val: iv,
+            final_val: fv,
+            multiplier: mul,
+            created_at: new Date().toISOString(),
+            game: "Mines",
+        };
+    }
     function handleResetInput(e: React.ChangeEvent<HTMLInputElement>): void {
         e.preventDefault();
 
@@ -123,9 +142,10 @@ export default function MinesPage() {
         setRevealedStateTo(clickedIndex, TileState.LOADING);
 
         if (minesState[clickedIndex] == 1) {
+            // BOMB TILE
             setGameOn(false);
-            // reveal after a small delay
 
+            // reveal after a small delay
             setTimeout(() => {
                 setRevealedStateTo(clickedIndex, TileState.REVEALED);
                 setRevealedState((prev) => {
@@ -135,12 +155,15 @@ export default function MinesPage() {
                     });
                     return newRevealedState;
                 });
+                // when lost add a new transaction
+                addTransaction(createTransaction(bettingAmt, 0, 0));
                 mineSound.play();
                 // loseSound.play();
 
                 setMultiplier(1);
             }, 500);
         } else {
+            // GEM TILE
             setTimeout(() => {
                 setRevealedStateTo(clickedIndex, TileState.REVEALED);
                 gemSound.play();
@@ -191,6 +214,13 @@ export default function MinesPage() {
         // const winnings = multiplier * bettingAmt
         setTimeout(() => {
             addWinnings(multiplier * bettingAmt);
+            addTransaction(
+                createTransaction(
+                    bettingAmt,
+                    multiplier * bettingAmt,
+                    multiplier
+                )
+            );
             setRevealedState((prev) => {
                 let newRevealedState = [...prev];
                 newRevealedState.forEach((v, i) => {
@@ -250,6 +280,7 @@ export default function MinesPage() {
                                     toggleInResetProcess();
                                     setResetInput("");
                                     resetBalance();
+                                    resetTransactions();
                                 }}
                             >
                                 {resetInput === "reset-balance" &&
@@ -275,32 +306,6 @@ export default function MinesPage() {
                         id="setting+game"
                         className="flex flex-col-reverse w-xs aftermobile:w-md aftertablet:w-3xl aftertablet:flex-row afterlargelaptop:w-6xl afterlargelaptop:flex-row bg-stake-300 rounded-t-lg relative"
                     >
-                        {/* fairness modal */}
-                        <Modal
-                            isOpen={isFairnessModalOpen}
-                            onClose={() => setIsFairnessModalOpen(false)}
-                        >
-                            <div className="bg-stake-800 text-justify w-60 h-100 aftermobile:w-100 aftermobile:h-80 flex flex-col justify-center items-center rounded-2xl px-10 font-semibold text-stake-gray-300">
-                                <div className="w-full">
-                                    Betting apps don't need to be rigged and
-                                    most of them are not rigged at all. Thats
-                                    the way it works. They'll make money
-                                    mathematically, and
-                                </div>
-
-                                <span className="text-red-400 font-bold py-5">
-                                    YOU WILL LOSE MONEY EVENTUALLY!
-                                </span>
-                                <button
-                                    className="hover:bg-stake-200 p-2 bg-stake-300 rounded-2xl"
-                                    onClick={() =>
-                                        setIsFairnessModalOpen(false)
-                                    }
-                                >
-                                    close
-                                </button>
-                            </div>
-                        </Modal>
                         {/* settings and bet buttons */}
                         <div
                             id="bet-setting"
@@ -577,16 +582,19 @@ export default function MinesPage() {
                         </div>
                     </div>
                     {/* fairness */}
-                    <div className="w-full bg-stake-700 border-t-3 border-stake-300 py-3 flex items-center justify-between rounded-b-lg">
-                        <div></div>
-                        <img src="./stake-logo-navy.svg"></img>
-                        <div
-                            onClick={() => setIsFairnessModalOpen(true)}
-                            className="px-3 text-stake-gray-300 font-semibold cursor-pointer"
-                        >
-                            Fairness
-                        </div>
-                    </div>
+                    <GameFooter></GameFooter>
+                    {/* <div>
+                        {transactions.map((v, i) => (
+                            <div key={i} className="flex gap-3">
+                                <div>{v.balance.toFixed(2)}</div>
+                                <div>{v.created_at.slice(11, 16)}</div>
+                                <div> {v.multiplier.toFixed(2)}</div>
+                                <div>{v.init_val.toFixed(2)}</div>
+                                <div>{v.final_val.toFixed(2)}</div>
+                                <div>{v.game}</div>
+                            </div>
+                        ))}
+                    </div> */}
                 </div>
             </div>
         </>
