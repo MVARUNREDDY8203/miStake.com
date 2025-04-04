@@ -1,4 +1,4 @@
-import { AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
+import { AreaChart, Area, XAxis, YAxis } from "recharts";
 import { useWalletStore } from "../stores/wallet";
 import { useEffect } from "react";
 import { DEFAULT_BALANCE } from "../constants/constants";
@@ -30,7 +30,6 @@ export default function Graph() {
     const dataMin: number = Math.min(...transactions.map((v, _) => v.balance));
     const dataMax: number = Math.max(...transactions.map((v, _) => v.balance));
     const yDomain = [dataMin - 1000, dataMax + 1000];
-
     return (
         <div className="flex items-center justify-center rounded-xl bg-stake-700 w-[95%]">
             <AreaChart
@@ -47,7 +46,17 @@ export default function Graph() {
                 {/* <CartesianGrid strokeDasharray="3 3" /> */}
                 <XAxis dataKey="created_at" tick={false} axisLine={false} />
                 <YAxis domain={yDomain} tick={false} axisLine={false} />
-                <Tooltip />
+                {/* <Tooltip
+                    contentStyle={{
+                        backgroundColor: "#1a1a1a",
+                        borderRadius: "8px",
+                        border: "none",
+                        padding: "10px",
+                        color: "#ffffff",
+                    }}
+                    label={"balance"}
+                    active={false}
+                /> */}
                 <defs>
                     <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
                         <stop
