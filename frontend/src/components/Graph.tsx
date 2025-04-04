@@ -30,18 +30,6 @@ export default function Graph() {
     const dataMin: number = Math.min(...transactions.map((v, _) => v.balance));
     const dataMax: number = Math.max(...transactions.map((v, _) => v.balance));
     const yDomain = [dataMin - 1000, dataMax + 1000];
-    const customToolTip = ({
-        active,
-        payload,
-    }: {
-        active: any;
-        payload: any;
-    }) => {
-        if (active && payload && payload.length) {
-            return <div className="bg-gray-400">{payload[0].value}</div>;
-        }
-        return null;
-    };
     return (
         <div className="flex items-center justify-center rounded-xl bg-stake-700 w-[95%]">
             <AreaChart
