@@ -32,7 +32,6 @@ export default function MinesPage() {
     const {
         balance,
         inResetProcess,
-        transactions,
         toggleInResetProcess,
         placeBet,
         addWinnings,
